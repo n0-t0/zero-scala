@@ -24,4 +24,4 @@ class GradFun(
                                         // println("div "+div)
                                         // println("grad "+grad)
                                         grad * div
-                                    
+                                )
