@@ -10,8 +10,6 @@ class GradFun(
 ) extends F:
     def apply(ins: Vector[GradVal]): GradVal =
         this.generation = ins.map(_.generation).max
-        // println(this.toString())
-        // println(this.generation)
         val outs = this.f(ins).map(_.setCreator(this))
         val out = outs(0)
         this.ins = Some(ins)
@@ -23,7 +21,7 @@ class GradFun(
         println(this.f.toString())
         dF(ins.get.map(_.value)).zipAll(outGrads, DenseVector(0.0), outGrads(0))
                                 .map((div, grad) => 
-                                        println("div "+div)
-                                        println("grad "+grad)
+                                        // println("div "+div)
+                                        // println("grad "+grad)
                                         grad * div
-                                    )
+                                    
