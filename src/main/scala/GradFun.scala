@@ -20,7 +20,7 @@ class GradFun(
         // 2->1のとき、dF(values)は2つだが、outGradsは1つなのでここは水増しする
         println(this.f.toString())
         dF(ins.get.map(_.value)).zipAll(outGrads, DenseVector(0.0), outGrads(0))
-                                .map((div, grad) => 
+                                .map((div, grad) =>
                                         // println("div "+div)
                                         // println("grad "+grad)
                                         grad * div
