@@ -1,23 +1,18 @@
 import breeze.linalg.DenseVector
 import breeze.numerics._
 
-class GradFun(f: (GradVal=>GradVal), dF: (GradVal=>GradVal), var ins: Option[Vector[GradVal]]=Option.empty, var out: Option[Vector[GradVal]]=Option.empty) extends F:
-    def forward(ins: Vector[GradVal]): Vector[GradVal] =
+class GradFun(
+    f: (Vector[GradVal]=>Vector[GradVal]),
+    dF: (Vector[DenseVector[Double]]=>Vector[DenseVector[Double]]),
+    var ins: Option[Vector[GradVal]]=Option.empty,
+    var out: Option[GradVal]=Option.empty
+) extends F:
+    def apply(ins: Vector[GradVal]): GradVal =
+        val outs = this.f(ins).map(_.setCreator(this))
+        val out = outs(0)
         this.ins = Some(ins)
-        val outs = for {in <- ins}
-        yield this.f(in).setCreator(this)
-        outs
-            // def forward(in: GradVal): GradVal =
-    //     this.in = Some(in)
-    //     val out = this.f(in).setCreator(this)
-    //     this.out = Some(out)
-    //     out
-        // val out = this.f(in).setCreator(this)
-        // this.out = Some(out)
-        // out
+        this.out = Some(out)
+        out
 
-    // def backward(grad: DenseVector[Double]): DenseVector[Double] =
-    //     this.in match {
-    //         case Some(value) => this.dF(value).value * grad
-    //         case None => throw new Exception("value not found")
-    //     }
+    def backward(outGrads: Vector[DenseVector[Double]]): Vector[DenseVector[Double]] =
+        dF(outGrads).zip(ins.get).map((grad, in) => grad * in.value)
