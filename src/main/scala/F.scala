@@ -14,9 +14,7 @@ object F:
         }
     def uniDOP(ins: Vector[DenseVector[Double]], f: (DenseVector[Double] => DenseVector[Double])): Vector[DenseVector[Double]] =
         ins match {
-            case Vector(gv) =>
-                println("gv: "+gv)
-                Vector(f(gv))
+            case Vector(gv) => Vector(f(gv))
             case _ => throw new Exception("invalid input")
         }
     def binOP(ins: Vector[GradVal], f: (GradVal, GradVal) => GradVal): Vector[GradVal] =
@@ -24,11 +22,9 @@ object F:
             case Vector(gv1, gv2) => Vector(f(gv1, gv2))
             case _ => throw new Exception("invalid input")
         }
-    def binDOP(ins: Vector[DenseVector[Double]], f: DenseVector[Double] => (DenseVector[Double], DenseVector[Double])): Vector[DenseVector[Double]] =
+    def binDOP(ins: Vector[DenseVector[Double]], f: DenseVector[Double] => DenseVector[Double]): Vector[DenseVector[Double]] =
         ins match {
-            case Vector(gv) =>
-                val (fdv1, fdv2) = f(gv)
-                Vector(fdv1, fdv2)
+            case Vector(gv1, gv2) => Vector(f(gv1), f(gv2))
             case _ => throw new Exception("invalid input")
         }
 
@@ -44,12 +40,15 @@ object F:
 
     final val ADD: (Vector[GradVal]=>Vector[GradVal]) =
         binOP(_, (gv1, gv2) => GradVal(gv1.value + gv2.value))
+
     final val D_ADD: (Vector[DenseVector[Double]]=>Vector[DenseVector[Double]]) =
-        binDOP(_, vec => (vec, vec))
+        binDOP(_, dv => DenseVector(1.0))
 
     def squareFun(ins: Vector[GradVal]): Vector[GradVal] =
         Vector(GradFun(F.SQUARE, F.D_SQUARE)(ins))
+
     def expFun(ins: Vector[GradVal]): Vector[GradVal] =
         Vector(GradFun(F.EXP, F.D_EXP)(ins))
+
     def addFun(ins: Vector[GradVal]): Vector[GradVal] =
         Vector(GradFun(F.ADD, F.D_ADD)(ins))
