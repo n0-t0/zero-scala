@@ -1,6 +1,8 @@
 import breeze.linalg.DenseVector
 import breeze.numerics._
 import java.util.{PriorityQueue, Comparator}
+import breeze.linalg.support.CanZipMapValues
+import algebra.ring.Semiring
 
 case class GradVal(
     value: DenseVector[Double],
@@ -17,12 +19,15 @@ case class GradVal(
     def +(a: Double): GradVal = GradVal((this.value+a), Option.empty)
     def -(a: Double): GradVal = GradVal((this.value-a), Option.empty)
     def *(a: Double): GradVal = GradVal((this.value*a), Option.empty)
+
     def setCreator(f: GradFun): GradVal =
         GradVal(this.value, this.grad, Some(f), f.generation+1)
+    
     def backward(): Unit =
         var f = this.creator.getOrElse(throw new Exception("No creator"))
 
         val queue = PriorityQueue[GradFun](new Comparator[GradFun] {
+            // generationの値が大きいほど先に取り出す優先度付きキュー
             def compare(gf1: GradFun, gf2: GradFun): Int = (-1)*(gf1.generation - gf2.generation)
         })
         
